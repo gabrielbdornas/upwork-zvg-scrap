@@ -1,10 +1,13 @@
+from bs4 import BeautifulSoup
 import datetime
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
+from io import StringIO
 
 
 def find_today():
@@ -53,10 +56,18 @@ def initial_selection():
     find_field_selection(driver, 'ger_id', 'Traunstein')
     submit = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/form/h3/nobr/button[1]")
     submit.click()
-    # import ipdb; ipdb.set_trace(context=10)
+    return driver
 
-
-
+def stract_table():
+    driver = initial_selection()
+    pages = driver.find_element(By.XPATH, "//*[@id='inhalt']/form/table")
+    pages_links = pages.find_elements(By.TAG_NAME, "a")
+    html_content = driver.page_source
+    soup = BeautifulSoup(html_content, "html.parser", from_encoding="windows-1252")
+    tables = soup.find_all("table")
+    html_string = str(tables[0])
+    df = pd.read_html(StringIO(html_string))[0]
+    import ipdb; ipdb.set_trace(context=10)
 
 if __name__ == '__main__':
-    initial_selection()
+    stract_table()
