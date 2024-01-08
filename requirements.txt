@@ -1,2 +1,4 @@
 ipdb==0.13.13
 selenium==4.16.0
+pandas==2.1.4
+beautifulsoup4==4.12.2
