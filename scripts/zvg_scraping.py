@@ -1,9 +1,10 @@
 import datetime
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium import webdriver
 
 
 def find_today():
@@ -32,6 +33,30 @@ def driver_initiate():
         print("Page not loaded.")
     return driver
 
+def find_field_selection(driver, css_name, option):
+    element = driver.find_element(By.NAME, css_name)
+    field_text = element.text
+    options = field_text.split('\n')
+    index = options.index(option)
+    select_element = Select(element)
+    select_element.select_by_index(index)
+    return None
+
+def initial_selection():
+    start_process = scraping_process_begin()
+    driver = start_process[0]
+    fields = {
+        'land': 'land_abk',
+        'gericht': 'ger_id'
+    }
+    find_field_selection(driver, 'land_abk', 'Bayern')
+    find_field_selection(driver, 'ger_id', 'Traunstein')
+    submit = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/form/h3/nobr/button[1]")
+    submit.click()
+    # import ipdb; ipdb.set_trace(context=10)
+
+
+
 
 if __name__ == '__main__':
-    scraping_process_begin()
+    initial_selection()
