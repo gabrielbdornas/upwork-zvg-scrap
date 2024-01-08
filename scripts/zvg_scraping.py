@@ -16,8 +16,7 @@ def find_today():
 
 def scraping_process_begin():
     driver = driver_initiate()
-    today = find_today()
-    return driver, today
+    return driver
 
 def driver_initiate():
     chrome_options = Options()
@@ -47,7 +46,7 @@ def find_field_selection(driver, css_name, option):
 
 def initial_selection():
     start_process = scraping_process_begin()
-    driver = start_process[0]
+    driver = start_process
     fields = {
         'land': 'land_abk',
         'gericht': 'ger_id'
@@ -67,7 +66,21 @@ def stract_table():
     tables = soup.find_all("table")
     html_string = str(tables[0])
     df = pd.read_html(StringIO(html_string))[0]
-    import ipdb; ipdb.set_trace(context=10)
+    salve_csv(df)
+    return None
+
+def salve_csv(df):
+    today = find_today()
+    aktenzeichen = list(df[1][df[0] == 'Aktenzeichen'])
+    objekt_lage = list(df[1][df[0] == 'Objekt/Lage'])
+    data = {
+        'aktenzeichen': aktenzeichen,
+        'objekt_lage': objekt_lage
+    }
+    new_df = pd.DataFrame(data)
+    new_df.to_csv('test.csv')
+    return None
 
 if __name__ == '__main__':
     stract_table()
+    # import ipdb; ipdb.set_trace(context=10)
