@@ -92,9 +92,24 @@ def salve_csv(df):
         'objekt_lage': objekt_lage
     }
     new_df = pd.DataFrame(data)
+    import ipdb; ipdb.set_trace(context=10)
+    objekt_lage_breaked = break_objekt_lage(new_df)
     new_df.index.name = 'id'
     new_df.to_csv(f'data/{today}/zvgs_crap.csv')
     return None
+
+def break_objekt_lage(df):
+    first_split = df['objekt_lage'][0].split(':')
+    second_split = first_split[1].split(',')
+    third_split = second_split[1].split()
+    objekt_lage_1 =  first_split[0].strip()
+    objekt_lage_2 = second_split[0].strip()
+    objekt_lage_3 = third_split[0]
+    objekt_lage_4 = third_split[1]
+    return objekt_lage_1, \
+           objekt_lage_2, \
+           objekt_lage_3, \
+           objekt_lage_4
 
 if __name__ == '__main__':
     stract_table()
