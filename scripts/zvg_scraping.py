@@ -3,6 +3,7 @@ import datetime
 import os
 import pandas as pd
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
@@ -23,17 +24,27 @@ def driver_initiate():
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--headless')
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.implicitly_wait(3)
+    # page_load = False
     url = 'https://www.zvg-portal.de/index.php?button=Termine%20suchen'
-    driver.get(url)
-    text_to_check = "Zwangsversteigerungstermine"
-    element = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.TAG_NAME, "body")))
-    if text_to_check in element.text:
-        print("Page loaded.")
-    else:
-        print("Page not loaded.")
+    # while not page_load:
+    while True:
+        try:
+            driver = webdriver.Chrome(options=chrome_options)
+            driver.implicitly_wait(3)
+            driver.set_page_load_timeout(5)
+            driver.get(url)
+            text_to_check = "Zwangsversteigerungstermine"
+            element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.TAG_NAME, "body")))
+            if text_to_check in element.text:
+                print("Page loaded.")
+            else:
+                print("Page loaded but something went wrong with it.")
+            # page_load = True
+            break
+        except TimeoutException:
+            print("Page load timeout. Retrying...")
+            driver.quit()
     return driver
 
 def find_field_selection(driver, css_name, option):
