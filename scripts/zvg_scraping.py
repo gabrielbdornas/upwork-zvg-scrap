@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import datetime
+import os
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,7 +13,7 @@ from io import StringIO
 
 def find_today():
   today = datetime.datetime.now()
-  return today
+  return today.strftime("%Y%m%d")
 
 def scraping_process_begin():
     driver = driver_initiate()
@@ -21,7 +22,7 @@ def scraping_process_begin():
 def driver_initiate():
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
-    #chrome_options.headless = headless
+    chrome_options.add_argument('--headless')
     driver = webdriver.Chrome(options=chrome_options)
     driver.implicitly_wait(3)
     url = 'https://www.zvg-portal.de/index.php?button=Termine%20suchen'
@@ -62,7 +63,7 @@ def stract_table():
     pages = driver.find_element(By.XPATH, "//*[@id='inhalt']/form/table")
     pages_links = pages.find_elements(By.TAG_NAME, "a")
     html_content = driver.page_source
-    soup = BeautifulSoup(html_content, "html.parser", from_encoding="windows-1252")
+    soup = BeautifulSoup(html_content, "html.parser")
     tables = soup.find_all("table")
     html_string = str(tables[0])
     df = pd.read_html(StringIO(html_string))[0]
@@ -71,6 +72,8 @@ def stract_table():
 
 def salve_csv(df):
     today = find_today()
+    if not os.path.exists(f'data/{today}'):
+        os.mkdir(f'data/{today}')
     aktenzeichen = list(df[1][df[0] == 'Aktenzeichen'])
     objekt_lage = list(df[1][df[0] == 'Objekt/Lage'])
     data = {
@@ -78,7 +81,8 @@ def salve_csv(df):
         'objekt_lage': objekt_lage
     }
     new_df = pd.DataFrame(data)
-    new_df.to_csv('test.csv')
+    new_df.index.name = 'id'
+    new_df.to_csv(f'data/{today}/zvgs_crap.csv')
     return None
 
 if __name__ == '__main__':
